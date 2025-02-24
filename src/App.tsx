@@ -1,15 +1,30 @@
-﻿import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
 import './App.css'
 import Board from './components/Board'
 import BlockSelector from './components/BlockSelector'
+import StatsDisplay from './components/StatsDisplay'
 import { Block, GameState, Point } from './types/game'
 import { createInitialGameState, isValidPlacement, placeBlock, calculateScore, rotateBlock } from './utils/gameUtils'
+import { playPlaceSound, playRotateSound, playGameOverSound } from './utils/soundUtils'
+import { loadStats, loadHistory, updateGameStats } from './utils/statsUtils'
 
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [selectedBlock, setSelectedBlock] = useState<Block | null>(null)
   const [message, setMessage] = useState<string>('')
   const [showRules, setShowRules] = useState(false)
+  const [showStats, setShowStats] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handlePlayerCountSelect = (count: number) => {
     setGameState(createInitialGameState(count))
@@ -23,6 +38,7 @@ function App() {
 
   const handleRotateBlock = () => {
     if (selectedBlock) {
+      playRotateSound()
       setSelectedBlock(rotateBlock(selectedBlock))
     }
   }
@@ -39,7 +55,14 @@ function App() {
       return
     }
 
+    playPlaceSound()
     const newState = placeBlock(gameState, selectedBlock, position)
+    
+    if (newState.gameOver && !gameState.gameOver) {
+      playGameOverSound()
+      updateGameStats(newState)
+    }
+    
     setGameState(newState)
     setSelectedBlock(null)
     setMessage('')
@@ -50,6 +73,7 @@ function App() {
     setSelectedBlock(null)
     setMessage('')
     setShowRules(false)
+    setShowStats(false)
   }
 
   const playerColorMap = {
@@ -126,6 +150,23 @@ function App() {
     );
   }
 
+  if (showStats) {
+    return (
+      <div className="App" style={{
+        padding: '20px',
+        backgroundColor: '#f0f0f0',
+        minHeight: '100vh'
+      }}>
+        <StatsDisplay
+          stats={loadStats()}
+          history={loadHistory()}
+          onClose={() => setShowStats(false)}
+          playerColorMap={playerColorMap}
+        />
+      </div>
+    );
+  }
+
   if (!gameState) {
     return (
       <div className="App" style={{
@@ -142,11 +183,14 @@ function App() {
           backgroundColor: '#fff',
           padding: '20px',
           borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          width: '100%',
+          maxWidth: '400px'
         }}>
           <h2>請選擇玩家人數</h2>
           <div style={{
             display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
             gap: '10px',
             justifyContent: 'center',
             marginTop: '20px'
@@ -162,29 +206,51 @@ function App() {
                   border: 'none',
                   backgroundColor: '#4CAF50',
                   color: 'white',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: isMobile ? '100%' : 'auto'
                 }}
               >
                 {count} 人遊戲
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setShowRules(true)}
-            style={{
-              marginTop: '20px',
-              padding: '10px 20px',
-              fontSize: '16px',
-              borderRadius: '4px',
-              border: 'none',
-              backgroundColor: '#2196F3',
-              color: 'white',
-              cursor: 'pointer',
-              width: '100%'
-            }}
-          >
-            查看遊戲規則
-          </button>
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '10px',
+            marginTop: '20px'
+          }}>
+            <button
+              onClick={() => setShowRules(true)}
+              style={{
+                padding: '10px 20px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: '#2196F3',
+                color: 'white',
+                cursor: 'pointer',
+                flex: 1
+              }}
+            >
+              查看規則
+            </button>
+            <button
+              onClick={() => setShowStats(true)}
+              style={{
+                padding: '10px 20px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: '#FF9800',
+                color: 'white',
+                cursor: 'pointer',
+                flex: 1
+              }}
+            >
+              遊戲統計
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -197,16 +263,16 @@ function App() {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '20px',
-      gap: '20px',
+      padding: isMobile ? '10px' : '20px',
+      gap: isMobile ? '10px' : '20px',
       minHeight: '100vh',
       backgroundColor: '#f0f0f0'
     }}>
-      <h1>心柔宇新_玩方塊遊戲</h1>
+      <h1 style={{ fontSize: isMobile ? '24px' : '32px' }}>心柔宇新_玩方塊遊戲</h1>
       
       <div style={{
         backgroundColor: '#fff',
-        padding: '20px',
+        padding: isMobile ? '10px' : '20px',
         borderRadius: '8px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         width: '100%',
@@ -217,21 +283,42 @@ function App() {
             <h2 style={{ color: gameState.winner }}>
               遊戲結束！{playerColorMap[gameState.winner!]}獲勝！
             </h2>
-            <button
-              onClick={handleRestart}
-              style={{
-                marginTop: '20px',
-                padding: '10px 20px',
-                fontSize: '16px',
-                borderRadius: '4px',
-                border: 'none',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                cursor: 'pointer'
-              }}
-            >
-              重新開始
-            </button>
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'center',
+              marginTop: '20px',
+              flexDirection: isMobile ? 'column' : 'row'
+            }}>
+              <button
+                onClick={handleRestart}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '16px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                重新開始
+              </button>
+              <button
+                onClick={() => setShowStats(true)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '16px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  backgroundColor: '#FF9800',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                查看統計
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -259,11 +346,13 @@ function App() {
 
         <div style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-around',
           marginTop: '20px',
           padding: '10px',
           backgroundColor: '#f5f5f5',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          gap: isMobile ? '10px' : '0'
         }}>
           {gameState.players.map((player, index) => (
             <div
@@ -273,7 +362,7 @@ function App() {
                 borderRadius: '4px',
                 backgroundColor: index === gameState.currentPlayerIndex ? '#fff' : 'transparent',
                 border: `2px solid ${player.color}`,
-                minWidth: '120px'
+                minWidth: isMobile ? '100%' : '120px'
               }}
             >
               <div style={{ color: player.color, fontWeight: 'bold' }}>
@@ -293,7 +382,8 @@ function App() {
           marginTop: '20px',
           display: 'flex',
           gap: '10px',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexDirection: isMobile ? 'column' : 'row'
         }}>
           <button
             onClick={() => setShowRules(true)}
@@ -304,10 +394,26 @@ function App() {
               border: 'none',
               backgroundColor: '#2196F3',
               color: 'white',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto'
             }}
           >
             查看規則
+          </button>
+          <button
+            onClick={() => setShowStats(true)}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: '#FF9800',
+              color: 'white',
+              cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto'
+            }}
+          >
+            查看統計
           </button>
           <button
             onClick={handleRestart}
@@ -318,7 +424,8 @@ function App() {
               border: 'none',
               backgroundColor: '#f44336',
               color: 'white',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto'
             }}
           >
             重新開始
@@ -329,22 +436,31 @@ function App() {
       {!gameState.gameOver && (
         <div style={{
           display: 'flex',
-          gap: '20px',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '10px' : '20px',
           maxWidth: '1200px',
           width: '100%',
-          justifyContent: 'center',
-          flexWrap: 'wrap'
+          justifyContent: 'center'
         }}>
-          <div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
             <h3>遊戲棋盤</h3>
-            <Board 
-              gameState={gameState} 
-              onCellClick={handleCellClick}
-              selectedBlock={selectedBlock}
-            />
+            <div style={{
+              overflowX: isMobile ? 'auto' : 'visible',
+              padding: isMobile ? '10px' : '0'
+            }}>
+              <Board 
+                gameState={gameState} 
+                onCellClick={handleCellClick}
+                selectedBlock={selectedBlock}
+              />
+            </div>
           </div>
           
-          <div style={{ flex: 1, minWidth: '300px' }}>
+          <div style={{ flex: 1, minWidth: isMobile ? '100%' : '300px' }}>
             <h3>可用方塊</h3>
             <BlockSelector
               blocks={currentPlayer.blocks}
