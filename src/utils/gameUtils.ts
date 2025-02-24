@@ -173,6 +173,60 @@ export const isValidPlacement = (
   return { isValid: true };
 };
 
+// 檢查遊戲是否結束
+export const checkGameOver = (state: GameState): GameState => {
+  const newState = { ...state };
+  
+  // 檢查是否有玩家已經用完所有方塊
+  const winner = state.players.find(player => player.blocks.length === 0);
+  if (winner) {
+    newState.gameOver = true;
+    newState.winner = winner.color;
+    return newState;
+  }
+
+  // 檢查是否所有玩家都無法放置方塊
+  const canAnyPlayerPlace = state.players.some(player => {
+    if (player.blocks.length === 0) return false;
+    
+    // 檢查棋盤上的每個位置
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      for (let x = 0; x < BOARD_SIZE; x++) {
+        // 檢查玩家的每個可用方塊
+        for (const block of player.blocks) {
+          // 檢查每個方向的旋轉
+          let rotatedBlock = { ...block };
+          for (let rotation = 0; rotation < 4; rotation++) {
+            if (isValidPlacement(state, rotatedBlock, { x, y }).isValid) {
+              return true;
+            }
+            rotatedBlock = rotateBlock(rotatedBlock);
+          }
+        }
+      }
+    }
+    return false;
+  });
+
+  if (!canAnyPlayerPlace) {
+    newState.gameOver = true;
+    // 找出剩餘方塊最少的玩家作為獲勝者
+    const minRemainingBlocks = Math.min(
+      ...state.players.map(player => 
+        player.blocks.reduce((total, block) => 
+          total + calculateBlockScore(block), 0)
+      )
+    );
+    const winners = state.players.filter(player => 
+      player.blocks.reduce((total, block) => 
+        total + calculateBlockScore(block), 0) === minRemainingBlocks
+    );
+    newState.winner = winners[0].color; // 如果有平手，選擇第一個玩家
+  }
+
+  return newState;
+};
+
 export const placeBlock = (
   state: GameState,
   block: Block,
@@ -204,5 +258,6 @@ export const placeBlock = (
   // 更新當前玩家
   newState.currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
 
-  return newState;
+  // 檢查遊戲是否結束
+  return checkGameOver(newState);
 }; 
