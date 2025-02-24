@@ -1,6 +1,5 @@
 import React from 'react';
 import { Block } from '../types/game';
-import { rotateBlock } from '../utils/gameUtils';
 
 interface BlockSelectorProps {
   blocks: Block[];
@@ -16,9 +15,16 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
   onRotateBlock
 }) => {
   const renderBlock = (block: Block) => {
+    const isSelected = selectedBlock && 
+      JSON.stringify(block.shape) === JSON.stringify(selectedBlock.shape) &&
+      block.color === selectedBlock.color;
+
+    // 如果這個方塊被選中，使用選中的方塊形狀（可能已經旋轉）
+    const displayShape = isSelected ? selectedBlock.shape : block.shape;
+
     const maxDimension = Math.max(
-      block.shape.length,
-      Math.max(...block.shape.map(row => row.length))
+      displayShape.length,
+      Math.max(...displayShape.map(row => row.length))
     );
     
     return (
@@ -31,14 +37,14 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
           gap: '1px',
           margin: '5px',
           padding: '5px',
-          border: selectedBlock === block ? '2px solid #000' : '2px solid transparent',
+          border: isSelected ? '2px solid #000' : '2px solid transparent',
           cursor: 'pointer',
           backgroundColor: '#f5f5f5',
           borderRadius: '4px'
         }}
         onClick={() => onBlockSelect(block)}
       >
-        {block.shape.map((row, y) => (
+        {displayShape.map((row, y) => (
           <React.Fragment key={y}>
             {Array(maxDimension).fill(false).map((_, x) => (
               <div
@@ -53,7 +59,7 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
             ))}
           </React.Fragment>
         ))}
-        {selectedBlock === block && onRotateBlock && (
+        {isSelected && onRotateBlock && (
           <button
             onClick={(e) => {
               e.stopPropagation();
