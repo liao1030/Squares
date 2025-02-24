@@ -337,7 +337,11 @@ function App() {
         }}>
           <div>
             <h3>遊戲棋盤</h3>
-            <Board gameState={gameState} onCellClick={handleCellClick} />
+            <Board 
+              gameState={gameState} 
+              onCellClick={handleCellClick}
+              selectedBlock={selectedBlock}
+            />
           </div>
           
           <div style={{ flex: 1, minWidth: '300px' }}>

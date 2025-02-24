@@ -1,13 +1,53 @@
-import React from 'react';
-import { GameState, Point } from '../types/game';
-import { BOARD_SIZE } from '../utils/gameUtils';
+import React, { useState } from 'react';
+import { GameState, Point, Block } from '../types/game';
+import { BOARD_SIZE, isValidPlacement } from '../utils/gameUtils';
 
 interface BoardProps {
   gameState: GameState;
   onCellClick: (position: Point) => void;
+  selectedBlock: Block | null;
 }
 
-const Board: React.FC<BoardProps> = ({ gameState, onCellClick }) => {
+interface PreviewResult {
+  cells: Set<string>;
+  isValid: boolean;
+}
+
+const Board: React.FC<BoardProps> = ({ gameState, onCellClick, selectedBlock }) => {
+  const [hoverPosition, setHoverPosition] = useState<Point | null>(null);
+
+  // 計算預覽方塊的位置和顯示
+  const getPreviewCells = (): PreviewResult => {
+    if (!selectedBlock || !hoverPosition) return { cells: new Set<string>(), isValid: false };
+
+    const previewCells = new Set<string>();
+    const isValid = isValidPlacement(gameState, selectedBlock, hoverPosition).isValid;
+
+    selectedBlock.shape.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell) {
+          const boardY = hoverPosition.y + y;
+          const boardX = hoverPosition.x + x;
+          if (boardY >= 0 && boardY < BOARD_SIZE && boardX >= 0 && boardX < BOARD_SIZE) {
+            previewCells.add(`${boardX}-${boardY}`);
+          }
+        }
+      });
+    });
+
+    return { cells: previewCells, isValid };
+  };
+
+  const handleMouseEnter = (position: Point) => {
+    setHoverPosition(position);
+  };
+
+  const handleMouseLeave = () => {
+    setHoverPosition(null);
+  };
+
+  const preview = selectedBlock && hoverPosition ? getPreviewCells() : null;
+
   return (
     <div className="board" style={{
       display: 'grid',
@@ -20,17 +60,29 @@ const Board: React.FC<BoardProps> = ({ gameState, onCellClick }) => {
       {Array(BOARD_SIZE).fill(null).map((_, y) =>
         Array(BOARD_SIZE).fill(null).map((_, x) => {
           const color = gameState.board[y][x];
+          const position = { x, y };
+          const key = `${x}-${y}`;
+          const isPreview = preview?.cells.has(key);
+
+          let backgroundColor = color || '#fff';
+          if (isPreview && selectedBlock) {
+            backgroundColor = preview.isValid ? `${selectedBlock.color}80` : '#ff000040';
+          }
+
           return (
             <div
-              key={`${x}-${y}`}
+              key={key}
               style={{
                 width: '25px',
                 height: '25px',
-                backgroundColor: color || '#fff',
+                backgroundColor,
                 border: '1px solid #ddd',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
               }}
-              onClick={() => onCellClick({ x, y })}
+              onClick={() => onCellClick(position)}
+              onMouseEnter={() => handleMouseEnter(position)}
+              onMouseLeave={handleMouseLeave}
             />
           );
         })
