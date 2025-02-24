@@ -1,16 +1,19 @@
 import React from 'react';
 import { Block } from '../types/game';
+import { rotateBlock } from '../utils/gameUtils';
 
 interface BlockSelectorProps {
   blocks: Block[];
   selectedBlock: Block | null;
   onBlockSelect: (block: Block) => void;
+  onRotateBlock?: () => void;
 }
 
 const BlockSelector: React.FC<BlockSelectorProps> = ({
   blocks,
   selectedBlock,
   onBlockSelect,
+  onRotateBlock
 }) => {
   const renderBlock = (block: Block) => {
     const maxDimension = Math.max(
@@ -22,6 +25,7 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
       <div
         key={JSON.stringify(block.shape)}
         style={{
+          position: 'relative',
           display: 'grid',
           gridTemplateColumns: `repeat(${maxDimension}, 20px)`,
           gap: '1px',
@@ -49,6 +53,34 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
             ))}
           </React.Fragment>
         ))}
+        {selectedBlock === block && onRotateBlock && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRotateBlock();
+            }}
+            style={{
+              position: 'absolute',
+              top: '-10px',
+              right: '-10px',
+              width: '24px',
+              height: '24px',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '16px',
+              padding: 0
+            }}
+            title="旋轉方塊"
+          >
+            ↻
+          </button>
+        )}
       </div>
     );
   };

@@ -3,7 +3,7 @@ import './App.css'
 import Board from './components/Board'
 import BlockSelector from './components/BlockSelector'
 import { Block, GameState, Point } from './types/game'
-import { createInitialGameState, isValidPlacement, placeBlock, calculateScore } from './utils/gameUtils'
+import { createInitialGameState, isValidPlacement, placeBlock, calculateScore, rotateBlock } from './utils/gameUtils'
 
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null)
@@ -18,6 +18,12 @@ function App() {
   const handleBlockSelect = (block: Block) => {
     setSelectedBlock(block)
     setMessage('')
+  }
+
+  const handleRotateBlock = () => {
+    if (selectedBlock) {
+      setSelectedBlock(rotateBlock(selectedBlock))
+    }
   }
 
   const handleCellClick = (position: Point) => {
@@ -131,6 +137,9 @@ function App() {
             '請將第一個方塊放在棋盤的任一角落' : 
             '方塊必須與同色方塊角對角相連，且不能邊對邊相鄰'}
         </div>
+        <div style={{ fontSize: '14px', color: '#666', marginTop: '5px' }}>
+          提示：選擇方塊後可以點擊旋轉按鈕進行旋轉
+        </div>
 
         <div style={{
           display: 'flex',
@@ -184,6 +193,7 @@ function App() {
             blocks={currentPlayer.blocks}
             selectedBlock={selectedBlock}
             onBlockSelect={handleBlockSelect}
+            onRotateBlock={handleRotateBlock}
           />
         </div>
       </div>

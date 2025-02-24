@@ -14,6 +14,24 @@ export const INITIAL_BLOCKS: boolean[][][] = [
   // ... 更多形狀
 ];
 
+// 旋轉方塊（順時針90度）
+export const rotateBlock = (block: Block): Block => {
+  const height = block.shape.length;
+  const width = block.shape[0].length;
+  const newShape = Array(width).fill(null).map(() => Array(height).fill(false));
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      newShape[x][height - 1 - y] = block.shape[y][x];
+    }
+  }
+
+  return {
+    shape: newShape,
+    color: block.color
+  };
+};
+
 // 計算單個方塊的得分（計算true的數量）
 const calculateBlockScore = (block: Block): number => {
   return block.shape.reduce((score, row) => 
