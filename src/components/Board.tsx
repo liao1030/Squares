@@ -48,6 +48,16 @@ const Board: React.FC<BoardProps> = ({ gameState, onCellClick, selectedBlock }) 
 
   const preview = selectedBlock && hoverPosition ? getPreviewCells() : null;
 
+  const getCellBackgroundColor = (
+    baseColor: string | null,
+    isPreview: boolean | undefined,
+    preview: PreviewResult | null,
+    selectedBlock: Block | null
+  ): string => {
+    if (!isPreview || !selectedBlock || !preview) return baseColor || '#fff';
+    return preview.isValid ? selectedBlock.color : `${selectedBlock.color}40`; // 40 表示 25% 的不透明度
+  };
+
   return (
     <div className="board" style={{
       display: 'grid',
@@ -63,11 +73,7 @@ const Board: React.FC<BoardProps> = ({ gameState, onCellClick, selectedBlock }) 
           const position = { x, y };
           const key = `${x}-${y}`;
           const isPreview = preview?.cells.has(key);
-
-          let backgroundColor = color || '#fff';
-          if (isPreview && selectedBlock) {
-            backgroundColor = preview.isValid ? `${selectedBlock.color}80` : '#ff000040';
-          }
+          const backgroundColor = getCellBackgroundColor(color, isPreview, preview, selectedBlock);
 
           return (
             <div
