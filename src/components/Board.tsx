@@ -55,7 +55,7 @@ const Board: React.FC<BoardProps> = ({ gameState, onCellClick, selectedBlock }) 
     selectedBlock: Block | null
   ): string => {
     if (!isPreview || !selectedBlock || !preview) return baseColor || '#fff';
-    return preview.isValid ? selectedBlock.color : `${selectedBlock.color}40`; // 40 表示 25% 的不透明度
+    return preview.isValid ? selectedBlock.color : '#808080'; // 有效時顯示玩家顏色，無效時顯示灰色
   };
 
   return (
