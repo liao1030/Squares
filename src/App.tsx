@@ -3,7 +3,7 @@ import './App.css'
 import Board from './components/Board'
 import BlockSelector from './components/BlockSelector'
 import { Block, GameState, Point } from './types/game'
-import { createInitialGameState, isValidPlacement, placeBlock } from './utils/gameUtils'
+import { createInitialGameState, isValidPlacement, placeBlock, calculateScore } from './utils/gameUtils'
 
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null)
@@ -111,7 +111,9 @@ function App() {
         backgroundColor: '#fff',
         padding: '20px',
         borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        width: '100%',
+        maxWidth: '800px'
       }}>
         <h2 style={{ color: currentPlayer.color }}>
           目前玩家：{playerColorMap[currentPlayer.color]}
@@ -128,6 +130,38 @@ function App() {
           {currentPlayer.placedBlocks.length === 0 ? 
             '請將第一個方塊放在棋盤的任一角落' : 
             '方塊必須與同色方塊角對角相連，且不能邊對邊相鄰'}
+        </div>
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          marginTop: '20px',
+          padding: '10px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '4px'
+        }}>
+          {gameState.players.map((player, index) => (
+            <div
+              key={player.color}
+              style={{
+                padding: '10px',
+                borderRadius: '4px',
+                backgroundColor: index === gameState.currentPlayerIndex ? '#fff' : 'transparent',
+                border: `2px solid ${player.color}`,
+                minWidth: '120px'
+              }}
+            >
+              <div style={{ color: player.color, fontWeight: 'bold' }}>
+                {playerColorMap[player.color]}
+              </div>
+              <div style={{ marginTop: '5px' }}>
+                得分：{calculateScore(player)}
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                剩餘方塊：{player.blocks.length}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

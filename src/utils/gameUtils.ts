@@ -1,4 +1,4 @@
-﻿import { Block, GameState, PlacementValidation, PlayerColor, Point } from '../types/game';
+﻿import { Block, GameState, PlacementValidation, PlayerColor, Point, Player } from '../types/game';
 
 export const BOARD_SIZE = 20;
 export const INITIAL_BLOCKS: boolean[][][] = [
@@ -13,6 +13,19 @@ export const INITIAL_BLOCKS: boolean[][][] = [
   [[true, false], [true, true], [true, false]], // 十字形
   // ... 更多形狀
 ];
+
+// 計算單個方塊的得分（計算true的數量）
+const calculateBlockScore = (block: Block): number => {
+  return block.shape.reduce((score, row) => 
+    score + row.reduce((rowScore, cell) => 
+      rowScore + (cell ? 1 : 0), 0), 0);
+};
+
+// 計算玩家的總得分
+export const calculateScore = (player: Player): number => {
+  return player.placedBlocks.reduce((total, block) => 
+    total + calculateBlockScore(block), 0);
+};
 
 const isCornerPosition = (position: Point): boolean => {
   return (
