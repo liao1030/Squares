@@ -14,6 +14,15 @@ export const INITIAL_BLOCKS: boolean[][][] = [
   // ... 更多形狀
 ];
 
+const isCornerPosition = (position: Point): boolean => {
+  return (
+    (position.x === 0 && position.y === 0) || // 左上角
+    (position.x === BOARD_SIZE - 1 && position.y === 0) || // 右上角
+    (position.x === 0 && position.y === BOARD_SIZE - 1) || // 左下角
+    (position.x === BOARD_SIZE - 1 && position.y === BOARD_SIZE - 1) // 右下角
+  );
+};
+
 export const createInitialGameState = (numPlayers: number): GameState => {
   const colors: PlayerColor[] = ['red' as PlayerColor, 'blue' as PlayerColor, 'green' as PlayerColor, 'yellow' as PlayerColor].slice(0, numPlayers);
   const board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
@@ -59,6 +68,30 @@ export const isValidPlacement = (
     }
   }
 
+  // 檢查首次放置是否在角落
+  if (currentPlayer.placedBlocks.length === 0) {
+    let coversCorner = false;
+    for (let y = 0; y < block.shape.length; y++) {
+      for (let x = 0; x < block.shape[y].length; x++) {
+        if (block.shape[y][x]) {
+          const boardY = position.y + y;
+          const boardX = position.x + x;
+          if (isCornerPosition({ x: boardX, y: boardY })) {
+            coversCorner = true;
+            break;
+          }
+        }
+      }
+      if (coversCorner) break;
+    }
+    
+    if (!coversCorner) {
+      return { isValid: false, message: '第一個方塊必須覆蓋棋盤的某個角落！' };
+    }
+    
+    return { isValid: true };
+  }
+
   // 檢查是否與同色方塊相鄰
   let hasCornerConnection = false;
   for (let y = 0; y < block.shape.length; y++) {
@@ -102,7 +135,7 @@ export const isValidPlacement = (
     }
   }
 
-  if (!hasCornerConnection && currentPlayer.placedBlocks.length > 0) {
+  if (!hasCornerConnection) {
     return { isValid: false, message: '必須與同色方塊角對角相連！' };
   }
 

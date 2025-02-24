@@ -6,9 +6,14 @@ import { Block, GameState, Point } from './types/game'
 import { createInitialGameState, isValidPlacement, placeBlock } from './utils/gameUtils'
 
 function App() {
-  const [gameState, setGameState] = useState<GameState>(createInitialGameState(2))
+  const [gameState, setGameState] = useState<GameState | null>(null)
   const [selectedBlock, setSelectedBlock] = useState<Block | null>(null)
   const [message, setMessage] = useState<string>('')
+
+  const handlePlayerCountSelect = (count: number) => {
+    setGameState(createInitialGameState(count))
+    setMessage('')
+  }
 
   const handleBlockSelect = (block: Block) => {
     setSelectedBlock(block)
@@ -16,7 +21,7 @@ function App() {
   }
 
   const handleCellClick = (position: Point) => {
-    if (!selectedBlock) {
+    if (!gameState || !selectedBlock) {
       setMessage('請先選擇一個方塊')
       return
     }
@@ -33,14 +38,62 @@ function App() {
     setMessage('')
   }
 
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex]
-
   const playerColorMap = {
     'red': '紅色',
     'blue': '藍色',
     'green': '綠色',
     'yellow': '黃色'
   }
+
+  if (!gameState) {
+    return (
+      <div className="App" style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        gap: '20px',
+        minHeight: '100vh',
+        backgroundColor: '#f0f0f0'
+      }}>
+        <h1>心柔宇新_玩方塊遊戲</h1>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <h2>請選擇玩家人數</h2>
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            justifyContent: 'center',
+            marginTop: '20px'
+          }}>
+            {[2, 3, 4].map(count => (
+              <button
+                key={count}
+                onClick={() => handlePlayerCountSelect(count)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '18px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                {count} 人遊戲
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex]
 
   return (
     <div className="App" style={{
@@ -71,6 +124,11 @@ function App() {
             {message}
           </div>
         )}
+        <div style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+          {currentPlayer.placedBlocks.length === 0 ? 
+            '請將第一個方塊放在棋盤的任一角落' : 
+            '方塊必須與同色方塊角對角相連，且不能邊對邊相鄰'}
+        </div>
       </div>
 
       <div style={{
