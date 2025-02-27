@@ -86,7 +86,7 @@ function App() {
   const Rules = () => (
     <div style={{
       backgroundColor: '#fff',
-      padding: '20px',
+      padding: isMobile ? '15px' : '20px',
       borderRadius: '8px',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       maxWidth: '800px',
@@ -94,7 +94,7 @@ function App() {
       textAlign: 'left'
     }}>
       <h2>遊戲規則</h2>
-      <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+      <div style={{ fontSize: isMobile ? '13px' : '14px', lineHeight: '1.6' }}>
         <h3>遊戲目標</h3>
         <p>將自己的所有方塊盡可能地放置在棋盤上，阻止對手，同時為自己創造更多的擺放空間。遊戲結束時，未能放置的方塊數量最少的玩家獲勝。</p>
         
@@ -125,7 +125,7 @@ function App() {
         style={{
           marginTop: '20px',
           padding: '10px 20px',
-          fontSize: '16px',
+          fontSize: isMobile ? '14px' : '16px',
           borderRadius: '4px',
           border: 'none',
           backgroundColor: '#4CAF50',
@@ -141,7 +141,7 @@ function App() {
   if (showRules) {
     return (
       <div className="App" style={{
-        padding: '20px',
+        padding: isMobile ? '10px' : '20px',
         backgroundColor: '#f0f0f0',
         minHeight: '100vh'
       }}>
@@ -153,7 +153,7 @@ function App() {
   if (showStats) {
     return (
       <div className="App" style={{
-        padding: '20px',
+        padding: isMobile ? '10px' : '20px',
         backgroundColor: '#f0f0f0',
         minHeight: '100vh'
       }}>
@@ -162,6 +162,7 @@ function App() {
           history={loadHistory()}
           onClose={() => setShowStats(false)}
           playerColorMap={playerColorMap}
+          isMobile={isMobile}
         />
       </div>
     );
@@ -173,21 +174,21 @@ function App() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '20px',
-        gap: '20px',
+        padding: isMobile ? '15px' : '20px',
+        gap: isMobile ? '15px' : '20px',
         minHeight: '100vh',
         backgroundColor: '#f0f0f0'
       }}>
-        <h1>心柔宇新_玩方塊遊戲</h1>
+        <h1 style={{ fontSize: isMobile ? '24px' : '32px' }}>心柔宇新_玩方塊遊戲</h1>
         <div style={{
           backgroundColor: '#fff',
-          padding: '20px',
+          padding: isMobile ? '15px' : '20px',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           width: '100%',
           maxWidth: '400px'
         }}>
-          <h2>請選擇玩家人數</h2>
+          <h2 style={{ fontSize: isMobile ? '20px' : '24px' }}>請選擇玩家人數</h2>
           <div style={{
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
@@ -200,8 +201,8 @@ function App() {
                 key={count}
                 onClick={() => handlePlayerCountSelect(count)}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '18px',
+                  padding: isMobile ? '12px 20px' : '10px 20px',
+                  fontSize: isMobile ? '16px' : '18px',
                   borderRadius: '4px',
                   border: 'none',
                   backgroundColor: '#4CAF50',
@@ -223,8 +224,8 @@ function App() {
             <button
               onClick={() => setShowRules(true)}
               style={{
-                padding: '10px 20px',
-                fontSize: '16px',
+                padding: isMobile ? '12px 20px' : '10px 20px',
+                fontSize: isMobile ? '14px' : '16px',
                 borderRadius: '4px',
                 border: 'none',
                 backgroundColor: '#2196F3',
@@ -238,8 +239,8 @@ function App() {
             <button
               onClick={() => setShowStats(true)}
               style={{
-                padding: '10px 20px',
-                fontSize: '16px',
+                padding: isMobile ? '12px 20px' : '10px 20px',
+                fontSize: isMobile ? '14px' : '16px',
                 borderRadius: '4px',
                 border: 'none',
                 backgroundColor: '#FF9800',
@@ -268,7 +269,7 @@ function App() {
       minHeight: '100vh',
       backgroundColor: '#f0f0f0'
     }}>
-      <h1 style={{ fontSize: isMobile ? '24px' : '32px' }}>心柔宇新_玩方塊遊戲</h1>
+      <h1 style={{ fontSize: isMobile ? '24px' : '32px', margin: isMobile ? '10px 0' : '20px 0' }}>心柔宇新_玩方塊遊戲</h1>
       
       <div style={{
         backgroundColor: '#fff',
@@ -280,7 +281,7 @@ function App() {
       }}>
         {gameState.gameOver ? (
           <div>
-            <h2 style={{ color: gameState.winner }}>
+            <h2 style={{ color: gameState.winner, fontSize: isMobile ? '20px' : '24px' }}>
               遊戲結束！{playerColorMap[gameState.winner!]}獲勝！
             </h2>
             <div style={{
@@ -293,8 +294,8 @@ function App() {
               <button
                 onClick={handleRestart}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '16px',
+                  padding: isMobile ? '12px 20px' : '10px 20px',
+                  fontSize: isMobile ? '14px' : '16px',
                   borderRadius: '4px',
                   border: 'none',
                   backgroundColor: '#4CAF50',
@@ -307,8 +308,8 @@ function App() {
               <button
                 onClick={() => setShowStats(true)}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '16px',
+                  padding: isMobile ? '12px 20px' : '10px 20px',
+                  fontSize: isMobile ? '14px' : '16px',
                   borderRadius: '4px',
                   border: 'none',
                   backgroundColor: '#FF9800',
@@ -322,23 +323,27 @@ function App() {
           </div>
         ) : (
           <>
-            <h2 style={{ color: currentPlayer.color }}>
+            <h2 style={{ color: currentPlayer.color, fontSize: isMobile ? '20px' : '24px' }}>
               目前玩家：{playerColorMap[currentPlayer.color]}
             </h2>
             {message && (
               <div style={{
                 color: 'red',
-                marginBottom: '10px'
+                marginBottom: '10px',
+                fontSize: isMobile ? '14px' : '16px',
+                padding: '5px',
+                backgroundColor: '#ffebee',
+                borderRadius: '4px'
               }}>
                 {message}
               </div>
             )}
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+            <div style={{ fontSize: isMobile ? '13px' : '14px', color: '#666', marginTop: '10px' }}>
               {currentPlayer.placedBlocks.length === 0 ? 
                 '請將第一個方塊放在棋盤的任一角落' : 
                 '方塊必須與同色方塊角對角相連，且不能邊對邊相鄰'}
             </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '5px' }}>
+            <div style={{ fontSize: isMobile ? '13px' : '14px', color: '#666', marginTop: '5px' }}>
               提示：選擇方塊後可以點擊旋轉按鈕進行旋轉
             </div>
           </>
@@ -388,8 +393,8 @@ function App() {
           <button
             onClick={() => setShowRules(true)}
             style={{
-              padding: '8px 16px',
-              fontSize: '14px',
+              padding: isMobile ? '12px 16px' : '8px 16px',
+              fontSize: isMobile ? '14px' : '14px',
               borderRadius: '4px',
               border: 'none',
               backgroundColor: '#2196F3',
@@ -403,8 +408,8 @@ function App() {
           <button
             onClick={() => setShowStats(true)}
             style={{
-              padding: '8px 16px',
-              fontSize: '14px',
+              padding: isMobile ? '12px 16px' : '8px 16px',
+              fontSize: isMobile ? '14px' : '14px',
               borderRadius: '4px',
               border: 'none',
               backgroundColor: '#FF9800',
@@ -418,8 +423,8 @@ function App() {
           <button
             onClick={handleRestart}
             style={{
-              padding: '8px 16px',
-              fontSize: '14px',
+              padding: isMobile ? '12px 16px' : '8px 16px',
+              fontSize: isMobile ? '14px' : '14px',
               borderRadius: '4px',
               border: 'none',
               backgroundColor: '#f44336',
@@ -447,26 +452,30 @@ function App() {
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            <h3>遊戲棋盤</h3>
+            <h3 style={{ fontSize: isMobile ? '18px' : '20px', margin: isMobile ? '10px 0' : '15px 0' }}>遊戲棋盤</h3>
             <div style={{
-              overflowX: isMobile ? 'auto' : 'visible',
-              padding: isMobile ? '10px' : '0'
+              overflowX: 'auto',
+              padding: isMobile ? '10px' : '0',
+              maxWidth: '100%',
+              WebkitOverflowScrolling: 'touch' // 提升 iOS 滾動體驗
             }}>
               <Board 
                 gameState={gameState} 
                 onCellClick={handleCellClick}
                 selectedBlock={selectedBlock}
+                isMobile={isMobile}
               />
             </div>
           </div>
           
           <div style={{ flex: 1, minWidth: isMobile ? '100%' : '300px' }}>
-            <h3>可用方塊</h3>
+            <h3 style={{ fontSize: isMobile ? '18px' : '20px', margin: isMobile ? '10px 0' : '15px 0' }}>可用方塊</h3>
             <BlockSelector
               blocks={currentPlayer.blocks}
               selectedBlock={selectedBlock}
               onBlockSelect={handleBlockSelect}
               onRotateBlock={handleRotateBlock}
+              isMobile={isMobile}
             />
           </div>
         </div>

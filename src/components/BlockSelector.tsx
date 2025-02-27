@@ -6,14 +6,19 @@ interface BlockSelectorProps {
   selectedBlock: Block | null;
   onBlockSelect: (block: Block) => void;
   onRotateBlock?: () => void;
+  isMobile: boolean;
 }
 
 const BlockSelector: React.FC<BlockSelectorProps> = ({
   blocks,
   selectedBlock,
   onBlockSelect,
-  onRotateBlock
+  onRotateBlock,
+  isMobile
 }) => {
+  const cellSize = isMobile ? 24 : 20;
+  const buttonSize = isMobile ? 30 : 24;
+
   const renderBlock = (block: Block) => {
     const isSelected = selectedBlock && 
       JSON.stringify(block.shape) === JSON.stringify(selectedBlock.shape) &&
@@ -33,14 +38,15 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
         style={{
           position: 'relative',
           display: 'grid',
-          gridTemplateColumns: `repeat(${maxDimension}, 20px)`,
+          gridTemplateColumns: `repeat(${maxDimension}, ${cellSize}px)`,
           gap: '1px',
-          margin: '5px',
-          padding: '5px',
-          border: isSelected ? '2px solid #000' : '2px solid transparent',
+          margin: isMobile ? '8px' : '5px',
+          padding: isMobile ? '8px' : '5px',
+          border: isSelected ? `3px solid #000` : '2px solid transparent',
           cursor: 'pointer',
           backgroundColor: '#f5f5f5',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          touchAction: 'manipulation'
         }}
         onClick={() => onBlockSelect(block)}
       >
@@ -50,8 +56,8 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
               <div
                 key={x}
                 style={{
-                  width: '20px',
-                  height: '20px',
+                  width: `${cellSize}px`,
+                  height: `${cellSize}px`,
                   backgroundColor: row[x] ? block.color : 'transparent',
                   border: row[x] ? '1px solid #ddd' : 'none'
                 }}
@@ -69,9 +75,9 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
               position: 'absolute',
               top: '-10px',
               right: '-10px',
-              width: '24px',
-              height: '24px',
-              borderRadius: '12px',
+              width: `${buttonSize}px`,
+              height: `${buttonSize}px`,
+              borderRadius: `${buttonSize/2}px`,
               border: 'none',
               backgroundColor: '#4CAF50',
               color: 'white',
@@ -79,8 +85,9 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '16px',
-              padding: 0
+              fontSize: isMobile ? '18px' : '16px',
+              padding: 0,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
             }}
             title="旋轉方塊"
           >
@@ -95,11 +102,12 @@ const BlockSelector: React.FC<BlockSelectorProps> = ({
     <div style={{
       display: 'flex',
       flexWrap: 'wrap',
-      gap: '10px',
-      padding: '10px',
+      gap: isMobile ? '12px' : '10px',
+      padding: isMobile ? '12px' : '10px',
       backgroundColor: '#fff',
       borderRadius: '4px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      justifyContent: 'center'
     }}>
       {blocks.map(block => renderBlock(block))}
     </div>

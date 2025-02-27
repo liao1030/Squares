@@ -92,7 +92,7 @@ export const updateGameStats = (gameState: GameState) => {
   // 添加遊戲歷史記錄
   const historyEntry: GameHistory = {
     date: new Date().toISOString(),
-    winner: gameState.winner!,
+    winner: gameState.winner || gameState.players[0].color, // 提供默認值，避免 null
     scores,
     playerCount: gameState.players.length
   };
